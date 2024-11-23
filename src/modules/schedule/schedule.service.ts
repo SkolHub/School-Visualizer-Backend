@@ -1,11 +1,37 @@
 import { Injectable } from '@nestjs/common';
 import { DBService } from '../../common/db.service';
+import { timeSlot } from '../../database/schema/time-slot';
+import { eq } from 'drizzle-orm';
+import { CreateScheduleDto } from './dto/create-schedule.dto';
 
 @Injectable()
 export class ScheduleService extends DBService {
-  findOne(deviceToken: string) {}
+  findOne() {
+    return this.db
+      .select({
+        time: timeSlot.time,
+        name: timeSlot.name,
+        repeatAfter: timeSlot.repeatAfter
+      })
+      .from(timeSlot);
+  }
 
-  create(createScheduleDto: CreateScheduleDto, deviceToken: string) {}
+  async create(createScheduleDto: CreateScheduleDto) {
+    await this.db.insert(timeSlot).values(
+      createScheduleDto.subjects
+        .map((subject) =>
+          subject.timeSlots.map((timeSlot) => ({
+            time: timeSlot.time,
+            name: subject.name,
+            deviceToken: this.token,
+            repeatAfter: timeSlot.repeatAfter
+          }))
+        )
+        .flat()
+    );
+  }
 
-  remove(deviceToken: string) {}
+  async remove() {
+    await this.db.delete(timeSlot).where(eq(timeSlot.deviceToken, this.token));
+  }
 }

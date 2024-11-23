@@ -1,6 +1,6 @@
 import { integer, pgTable, serial, text, time } from 'drizzle-orm/pg-core';
 
-export const notifications = pgTable('notifications', {
+export const timeSlot = pgTable('time_slot', {
   id: serial('id').primaryKey(),
   deviceToken: text('device_token').notNull(),
   name: text('name').notNull(),

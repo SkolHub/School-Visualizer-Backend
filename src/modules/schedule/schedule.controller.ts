@@ -1,25 +1,23 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
+import { CreateScheduleDto } from './dto/create-schedule.dto';
 
-@Controller('schedule')
+@Controller()
 export class ScheduleController {
   constructor(private readonly scheduleService: ScheduleService) {}
 
-  @Get(':deviceToken')
-  findOne(@Param() deviceToken: string) {
-    return this.scheduleService.findOne(deviceToken);
+  @Get()
+  findOne() {
+    return this.scheduleService.findOne();
   }
 
-  @Post(':deviceToken')
-  create(
-    @Body() createScheduleDto: CreateScheduleDto,
-    @Param() deviceToken: string
-  ) {
-    return this.scheduleService.create(createScheduleDto, deviceToken);
+  @Post()
+  create(@Body() createScheduleDto: CreateScheduleDto) {
+    return this.scheduleService.create(createScheduleDto);
   }
 
-  @Delete(':deviceToken')
-  remove(@Param() deviceToken: string) {
-    return this.scheduleService.remove(deviceToken);
+  @Delete()
+  remove() {
+    return this.scheduleService.remove();
   }
 }
