@@ -1,17 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-
-interface TerminalTimeSlot {
-  displayName: string;
-  color: string;
-  symbolName: string;
-  endTime: Date;
-}
-
-interface TimeSlot extends TerminalTimeSlot {
-  nextHour: Omit<TerminalTimeSlot, 'endTime'> | null;
-}
+import { TimeSlot } from '../../types/types';
 
 @Injectable()
 export class NotificationService {
@@ -51,7 +41,7 @@ export class NotificationService {
 
   async scheduleNextHour(
     deviceToken: string,
-    payload: TerminalTimeSlot,
+    payload: TimeSlot,
     delay: number
   ) {
     await this.scheduleNotification(deviceToken, payload, 'next', delay);

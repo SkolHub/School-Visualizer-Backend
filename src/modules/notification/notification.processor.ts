@@ -7,10 +7,12 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { users } from '../../database/schema/users';
 import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import envConfig from '../../../env.config';
+import { TimeSlot } from '../../types/types';
 
 interface NotificationInterface {
   deviceToken: string;
-  name: string;
+  payload: TimeSlot;
 }
 
 @Processor('notifications')
@@ -24,32 +26,139 @@ export class NotificationsProcessor extends WorkerHost {
   }
 
   async getToken() {
-    let token = await this.cacheManager.get('token');
+    let token: string = await this.cacheManager.get('token');
 
     if (!token) {
-      token = this.jwtService.sign({
-        alg: 'ES256',
-        kid: '',
-        iss: '',
-        iat: Math.floor(Date.now() / 1000)
-      });
+      token = this.jwtService.sign(
+        {
+          iss: envConfig.TEAM_ID,
+          iat: Math.floor(Date.now() / 1000)
+        },
+        {
+          header: {
+            alg: 'ES256',
+            kid: envConfig.KEY_ID
+          },
+          algorithm: 'ES256'
+        }
+      );
 
       await this.cacheManager.set('token', token);
     }
+
+    return token;
   }
 
-  async sendBeginActivity(startToken: string, payload: any) {
+  async sendBeginActivity(
+    startToken: string,
+    payload: TimeSlot,
+    authToken: string
+  ) {
+    const now = new Date().getTime();
 
+    await fetch(`https://api.sandbox.push.apple.com/3/device/${startToken}`, {
+      method: 'POST',
+      headers: {
+        'apns-topic':
+          'ro.attractivestar.SchoolHubMobile.push-type.liveactivity',
+        'apns-push-type': 'liveactivity',
+        'apns-priority': '10',
+        authorization: `bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        aps: {
+          timestamp: now,
+          'stale-date': now / 1000 + 60 * 60,
+          event: 'start',
+          'content-state': payload,
+          'attributes-type': 'TimetableAttributes',
+          attributes: payload
+        }
+      })
+    });
   }
 
-  async sendEndActivity(updateToken: string, payload: any) {}
+  async sendEndActivity(
+    updateToken: string,
+    payload: TimeSlot,
+    authToken: string
+  ) {
+    const now = new Date().getTime();
 
-  async scheduleNextHour(updateToken: string, payload: any) {}
+    await fetch(`https://api.sandbox.push.apple.com/3/device/${updateToken}`, {
+      method: 'POST',
+      headers: {
+        'apns-topic':
+          'ro.attractivestar.SchoolHubMobile.push-type.liveactivity',
+        'apns-push-type': 'liveactivity',
+        'apns-priority': '10',
+        authorization: `bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        aps: {
+          timestamp: now,
+          'dismissal-date': now,
+          event: 'end',
+          'content-state': payload
+        }
+      })
+    });
+  }
 
-  async scheduleBeginHour(updateToken: string, payload: any) {}
+  async scheduleNextHour(
+    updateToken: string,
+    payload: TimeSlot,
+    authToken: string
+  ) {
+    const now = new Date().getTime();
+
+    await fetch(`https://api.sandbox.push.apple.com/3/device/${updateToken}`, {
+      method: 'POST',
+      headers: {
+        'apns-topic':
+          'ro.attractivestar.SchoolHubMobile.push-type.liveactivity',
+        'apns-push-type': 'liveactivity',
+        'apns-priority': '10',
+        authorization: `bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        aps: {
+          timestamp: now,
+          event: 'update',
+          'content-state': payload
+        }
+      })
+    });
+  }
+
+  async scheduleBeginHour(
+    updateToken: string,
+    payload: TimeSlot,
+    authToken: string
+  ) {
+    const now = new Date().getTime();
+
+    await fetch(`https://api.sandbox.push.apple.com/3/device/${updateToken}`, {
+      method: 'POST',
+      headers: {
+        'apns-topic':
+          'ro.attractivestar.SchoolHubMobile.push-type.liveactivity',
+        'apns-push-type': 'liveactivity',
+        'apns-priority': '10',
+        authorization: `bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        aps: {
+          timestamp: now,
+          event: 'update',
+          'content-state': payload
+        }
+      })
+    });
+  }
 
   async process(job: Job<NotificationInterface>): Promise<void> {
-    const { deviceToken, name } = job.data;
+    const { deviceToken, payload } = job.data;
 
     const { updateToken, startToken } = (
       await this.db
@@ -58,20 +167,22 @@ export class NotificationsProcessor extends WorkerHost {
         .where(eq(users.deviceToken, deviceToken))
     )[0];
 
-    switch (name) {
+    const authToken = await this.getToken();
+
+    switch (job.name) {
       case 'first':
-        await this.sendBeginActivity(startToken, job.data);
+        await this.sendBeginActivity(startToken, payload, authToken);
         break;
       case 'end':
-        await this.sendEndActivity(updateToken, job.data);
+        await this.sendEndActivity(updateToken, payload, authToken);
         break;
 
       case 'next':
-        await this.scheduleNextHour(updateToken, job.data);
+        await this.scheduleNextHour(updateToken, payload, authToken);
         break;
 
       case 'start':
-        await this.scheduleBeginHour(updateToken, job.data);
+        await this.scheduleBeginHour(updateToken, payload, authToken);
         break;
     }
   }

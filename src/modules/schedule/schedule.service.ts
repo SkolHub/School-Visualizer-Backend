@@ -82,11 +82,12 @@ export class ScheduleService extends DBService {
               color: notifications[j].color,
               symbolName: notifications[j].symbolName,
               endTime: endTime,
-              nextHour: notifications.length > 1 ? {
+              nextTimeSlot: notifications.length > 1 ? {
                 displayName: notifications[j + 1].displayName,
                 color: notifications[j + 1].color,
                 symbolName: notifications[j + 1].symbolName
-              } : null
+              } : null,
+              startTime: null
             },
             delay
           );
@@ -98,11 +99,12 @@ export class ScheduleService extends DBService {
               color: notifications[j].color,
               symbolName: notifications[j].symbolName,
               endTime: endTime,
-              nextHour: j !== notifications.length - 1 ? {
+              nextTimeSlot: j !== notifications.length - 1 ? {
                 displayName: notifications[j + 1].displayName,
                 color: notifications[j + 1].color,
                 symbolName: notifications[j + 1].symbolName
-              } : null
+              } : null,
+              startTime: null
             },
             delay
           );
@@ -123,7 +125,9 @@ export class ScheduleService extends DBService {
               displayName: notifications[j + 1].displayName,
               color: notifications[j + 1].color,
               symbolName: notifications[j + 1].symbolName,
-              endTime: endTime
+              startTime: startTime,
+              endTime: null,
+              nextTimeSlot: null
             },
             endDelay
           );

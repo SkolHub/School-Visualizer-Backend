@@ -22,4 +22,13 @@ export class AuthService extends DBService {
       })
       .where(eq(users.deviceToken, this.token));
   }
+
+  async updateToken(uploadTokenDto: UploadTokenDto) {
+    await this.db
+      .update(users)
+      .set({
+        updateToken: uploadTokenDto.token
+      })
+      .where(eq(users.deviceToken, this.token));
+  }
 }
