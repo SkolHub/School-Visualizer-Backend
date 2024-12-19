@@ -1,0 +1,264 @@
+[
+  {
+    "symbolName": "figure.run",
+    "displayName": "Sport",
+    "timeSlots": [
+      {
+        "endTime": "2024-11-03T07:50:00Z",
+        "weekday": 3,
+        "startTime": "2024-11-03T07:00:00Z"
+      }
+    ],
+    "color": "indigo"
+  },
+  {
+    "symbolName": "flask.fill",
+    "color": "teal",
+    "displayName": "Chimie",
+    "timeSlots": [
+      {
+        "endTime": "2024-11-03T08:50:00Z",
+        "weekday": 4,
+        "startTime": "2024-11-03T08:00:00Z"
+      }
+    ]
+  },
+  {
+    "displayName": "Franceză",
+    "timeSlots": [
+      {
+        "startTime": "2024-11-03T11:10:00Z",
+        "endTime": "2024-11-03T12:00:00Z",
+        "weekday": 2
+      },
+      {
+        "weekday": 1,
+        "startTime": "2024-11-03T10:10:00Z",
+        "endTime": "2024-11-03T11:00:00Z"
+      }
+    ],
+    "symbolName": "character.book.closed.fill",
+    "color": "purple"
+  },
+  {
+    "displayName": "Biologie",
+    "timeSlots": [
+      {
+        "weekday": 2,
+        "startTime": "2024-11-03T09:10:00Z",
+        "endTime": "2024-11-03T10:00:00Z"
+      }
+    ],
+    "symbolName": "leaf.fill",
+    "color": "green"
+  },
+  {
+    "color": "pink",
+    "symbolName": "atom",
+    "displayName": "Fizică",
+    "timeSlots": [
+      {
+        "endTime": "2024-11-03T10:00:00Z",
+        "weekday": 5,
+        "startTime": "2024-11-03T09:10:00Z"
+      },
+      {
+        "endTime": "2024-11-03T10:00:00Z",
+        "weekday": 3,
+        "startTime": "2024-11-03T09:10:00Z"
+      },
+      {
+        "startTime": "2024-11-03T08:00:00Z",
+        "weekday": 1,
+        "endTime": "2024-11-03T08:50:00Z"
+      }
+    ]
+  },
+  {
+    "timeSlots": [
+      {
+        "endTime": "2024-11-09T12:00:00Z",
+        "startTime": "2024-11-09T11:10:00Z",
+        "weekday": 5
+      }
+    ],
+    "symbolName": "figure.arms.open",
+    "color": "blue",
+    "displayName": "Purtare"
+  },
+  {
+    "color": "blue",
+    "timeSlots": [
+      {
+        "weekday": 5,
+        "endTime": "2024-11-03T08:50:00Z",
+        "startTime": "2024-11-03T08:00:00Z"
+      },
+      {
+        "weekday": 4,
+        "startTime": "2024-11-03T11:10:00Z",
+        "endTime": "2024-11-03T12:00:00Z"
+      },
+      {
+        "weekday": 2,
+        "endTime": "2024-11-03T08:50:00Z",
+        "startTime": "2024-11-03T08:00:00Z"
+      },
+      {
+        "weekday": 5,
+        "endTime": "2024-11-03T11:00:00Z",
+        "startTime": "2024-11-03T10:10:00Z"
+      },
+      {
+        "weekday": 2,
+        "startTime": "2024-11-03T07:00:00Z",
+        "endTime": "2024-11-03T07:50:00Z"
+      },
+      {
+        "weekday": 4,
+        "startTime": "2024-11-03T09:10:00Z",
+        "endTime": "2024-11-03T10:00:00Z"
+      },
+      {
+        "startTime": "2024-11-03T10:10:00Z",
+        "endTime": "2024-11-03T11:00:00Z",
+        "weekday": 4
+      }
+    ],
+    "symbolName": "laptopcomputer",
+    "displayName": "Informatică"
+  },
+  {
+    "timeSlots": [
+      {
+        "weekday": 5,
+        "endTime": "2024-11-03T07:50:00Z",
+        "startTime": "2024-11-03T07:00:00Z"
+      },
+      {
+        "weekday": 2,
+        "startTime": "2024-11-03T10:10:00Z",
+        "endTime": "2024-11-03T11:00:00Z"
+      },
+      {
+        "weekday": 3,
+        "endTime": "2024-11-03T06:50:00Z",
+        "startTime": "2024-11-03T06:00:00Z"
+      }
+    ],
+    "symbolName": "books.vertical.fill",
+    "displayName": "Română",
+    "color": "orange"
+  },
+  {
+    "symbolName": "book.pages.fill",
+    "displayName": "Istorie",
+    "timeSlots": [
+      {
+        "endTime": "2024-11-03T07:50:00Z",
+        "startTime": "2024-11-03T07:00:00Z",
+        "weekday": 4
+      }
+    ],
+    "color": "orange"
+  },
+  {
+    "timeSlots": [
+      {
+        "endTime": "2024-11-03T06:50:00Z",
+        "weekday": 2,
+        "startTime": "2024-11-03T06:00:00Z"
+      }
+    ],
+    "symbolName": "book.closed.fill",
+    "displayName": "Religie",
+    "color": "red"
+  },
+  {
+    "displayName": "Geografie",
+    "symbolName": "globe.europe.africa.fill",
+    "timeSlots": [
+      {
+        "weekday": 3,
+        "endTime": "2024-11-03T11:00:00Z",
+        "startTime": "2024-11-03T10:10:00Z"
+      }
+    ],
+    "color": "green"
+  },
+  {
+    "color": "indigo",
+    "displayName": "Engleză",
+    "timeSlots": [
+      {
+        "weekday": 3,
+        "endTime": "2024-11-03T08:50:00Z",
+        "startTime": "2024-11-03T08:00:00Z"
+      },
+      {
+        "weekday": 1,
+        "endTime": "2024-11-03T06:50:00Z",
+        "startTime": "2024-11-03T06:00:00Z"
+      }
+    ],
+    "symbolName": "globe"
+  },
+  {
+    "displayName": "Limba germană",
+    "color": "blue",
+    "timeSlots": [
+    ],
+    "symbolName": "graduationcap.fill"
+  },
+  {
+    "symbolName": "eurosign.circle.fill",
+    "displayName": "Economie",
+    "timeSlots": [
+      {
+        "endTime": "2024-11-03T07:50:00Z",
+        "weekday": 1,
+        "startTime": "2024-11-03T07:00:00Z"
+      }
+    ],
+    "color": "brown"
+  },
+  {
+    "timeSlots": [
+      {
+        "endTime": "2024-11-03T06:50:00Z",
+        "weekday": 5,
+        "startTime": "2024-11-03T06:00:00Z"
+      },
+      {
+        "endTime": "2024-11-03T12:00:00Z",
+        "startTime": "2024-11-03T11:10:00Z",
+        "weekday": 3
+      },
+      {
+        "weekday": 1,
+        "startTime": "2024-11-03T09:10:00Z",
+        "endTime": "2024-11-03T10:00:00Z"
+      },
+      {
+        "weekday": 4,
+        "endTime": "2024-11-03T06:50:00Z",
+        "startTime": "2024-11-03T06:00:00Z"
+      }
+    ],
+    "symbolName": "x.squareroot",
+    "color": "mint",
+    "displayName": "Matematică"
+  },
+  {
+    "color": "yellow",
+    "displayName": "Istoria evreilor",
+    "timeSlots": [
+      {
+        "endTime": "2024-11-03T12:00:00Z",
+        "startTime": "2024-11-03T11:10:00Z",
+        "weekday": 1
+      }
+    ],
+    "symbolName": "text.book.closed.fill"
+  }
+]

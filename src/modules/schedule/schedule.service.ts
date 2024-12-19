@@ -1,9 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { DBService } from '../../common/db.service';
-import { timeSlot } from '../../database/schema/time-slot';
-import { eq } from 'drizzle-orm';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { NotificationService } from '../notification/notification.service';
+
+function nextDay(x: number) {
+  const now = new Date();
+
+  now.setDate(now.getDate() + ((x + (7 - now.getDay())) % 7));
+
+  return now;
+}
 
 @Injectable()
 export class ScheduleService extends DBService {
@@ -11,32 +17,123 @@ export class ScheduleService extends DBService {
     super();
   }
 
-  findOne() {
-    return this.db
-      .select({
-        time: timeSlot.time,
-        name: timeSlot.name,
-        repeatAfter: timeSlot.repeatAfter
-      })
-      .from(timeSlot);
-  }
-
   async create(createScheduleDto: CreateScheduleDto) {
-    await this.db.insert(timeSlot).values(
-      createScheduleDto.subjects
-        .map((subject) =>
-          subject.timeSlots.map((timeSlot) => ({
-            time: timeSlot.time,
-            name: subject.name,
-            deviceToken: this.token,
-            repeatAfter: timeSlot.repeatAfter
-          }))
-        )
-        .flat()
-    );
-  }
+    await this.notificationService.clearNotifications(this.token);
 
-  async remove() {
-    await this.db.delete(timeSlot).where(eq(timeSlot.deviceToken, this.token));
+    const raw_notifications = createScheduleDto.subjects
+      .map((subject) =>
+        subject.timeSlots.map((timeSlot) => {
+          return {
+            deviceToken: this.token,
+            displayName: subject.displayName,
+            color: subject.color,
+            symbolName: subject.symbolName,
+            repeatAfter: 7,
+            startTime: new Date(timeSlot.startTime),
+            endTime: new Date(timeSlot.endTime),
+            weekday: timeSlot.weekday
+          };
+        })
+      )
+      .flat();
+
+    for (let i = 1; i <= 5; i++) {
+      const notifications = raw_notifications
+        .filter((el) => el.weekday === i)
+        .sort((a, b) => {
+          const startTimeA = new Date(a.startTime);
+          const startTimeB = new Date(b.startTime);
+
+          return Number(startTimeA) - Number(startTimeB);
+        });
+
+      for (let j = 0; j < notifications.length; j++) {
+        const now = new Date();
+
+        const startTime = new Date(
+          nextDay(i).setHours(
+            notifications[j].startTime.getHours(),
+            notifications[j].startTime.getMinutes(),
+            notifications[j].startTime.getSeconds(),
+            0
+          )
+        );
+
+        const endTime = new Date(
+          nextDay(i).setHours(
+            notifications[j].endTime.getHours(),
+            notifications[j].endTime.getMinutes(),
+            notifications[j].endTime.getSeconds(),
+            0
+          )
+        );
+
+        // if (startTime < now) {
+        //   continue;
+        // }
+
+        const delay = startTime.getTime() - now.getTime();
+
+        if (j === 0) {
+          await this.notificationService.scheduleBeginActivity(
+            this.token,
+            {
+              displayName: notifications[j].displayName,
+              color: notifications[j].color,
+              symbolName: notifications[j].symbolName,
+              endTime: endTime,
+              nextHour: notifications.length > 1 ? {
+                displayName: notifications[j + 1].displayName,
+                color: notifications[j + 1].color,
+                symbolName: notifications[j + 1].symbolName
+              } : null
+            },
+            delay
+          );
+        } else {
+          await this.notificationService.scheduleBeginHour(
+            this.token,
+            {
+              displayName: notifications[j].displayName,
+              color: notifications[j].color,
+              symbolName: notifications[j].symbolName,
+              endTime: endTime,
+              nextHour: j !== notifications.length - 1 ? {
+                displayName: notifications[j + 1].displayName,
+                color: notifications[j + 1].color,
+                symbolName: notifications[j + 1].symbolName
+              } : null
+            },
+            delay
+          );
+        }
+
+        // if (endTime < now) {
+        //   continue;
+        // }
+
+        const nextNotification = notifications[j + 1];
+
+        const endDelay = endTime.getTime() - now.getTime();
+
+        if (nextNotification) {
+          await this.notificationService.scheduleNextHour(
+            this.token,
+            {
+              displayName: notifications[j + 1].displayName,
+              color: notifications[j + 1].color,
+              symbolName: notifications[j + 1].symbolName,
+              endTime: endTime
+            },
+            endDelay
+          );
+        } else {
+          await this.notificationService.scheduleEndActivity(
+            this.token,
+            endDelay
+          );
+        }
+      }
+    }
   }
 }

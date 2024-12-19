@@ -2,40 +2,87 @@ import { Injectable } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 
+interface TerminalTimeSlot {
+  displayName: string;
+  color: string;
+  symbolName: string;
+  endTime: Date;
+}
+
+interface TimeSlot extends TerminalTimeSlot {
+  nextHour: Omit<TerminalTimeSlot, 'endTime'> | null;
+}
+
 @Injectable()
 export class NotificationService {
   constructor(
     @InjectQueue('notifications') private readonly notificationsQueue: Queue
   ) {}
 
-  async sendNotification(
-    deviceToken: string,
-    message: string,
-    payload: any
-  ): Promise<void> {
-    await this.notificationsQueue.add('sendNotification', {
-      deviceToken,
-      message,
-      payload
-    });
-  }
-
   async scheduleNotification(
     deviceToken: string,
-    message: string,
     payload: any,
+    type: 'first' | 'start' | 'end' | 'next',
     delay: number
   ): Promise<void> {
     await this.notificationsQueue.add(
-      'sendNotification',
-      { deviceToken, message, payload },
-      { delay }
+      type,
+      {
+        deviceToken,
+        payload
+      },
+      {
+        delay
+      }
     );
   }
 
-  async removeScheduledNotification(jobId: string): Promise<void> {
-    const job = await this.notificationsQueue.getJob(jobId);
-    if (job) {
+  async scheduleBeginActivity(
+    deviceToken: string,
+    payload: TimeSlot,
+    delay: number
+  ) {
+    await this.scheduleNotification(deviceToken, payload, 'first', delay);
+  }
+
+  async scheduleEndActivity(deviceToken: string, delay: number) {
+    await this.scheduleNotification(deviceToken, {}, 'end', delay);
+  }
+
+  async scheduleNextHour(
+    deviceToken: string,
+    payload: TerminalTimeSlot,
+    delay: number
+  ) {
+    await this.scheduleNotification(deviceToken, payload, 'next', delay);
+  }
+
+  async scheduleBeginHour(
+    deviceToken: string,
+    payload: TimeSlot,
+    delay: number
+  ) {
+    await this.scheduleNotification(deviceToken, payload, 'start', delay);
+  }
+
+  async clearNotifications(deviceToken: string): Promise<void> {
+    const jobs = await this.notificationsQueue.getJobs();
+
+    for (const job of jobs) {
+      if (job.data.deviceToken === deviceToken) {
+        await job.remove();
+      }
+    }
+  }
+
+  async getNotifications(): Promise<any> {
+    return await this.notificationsQueue.getJobs();
+  }
+
+  async deleteNotifications(): Promise<void> {
+    const jobs = await this.notificationsQueue.getJobs();
+
+    for (const job of jobs) {
       await job.remove();
     }
   }

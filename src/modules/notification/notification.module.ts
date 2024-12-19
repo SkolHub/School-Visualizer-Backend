@@ -3,7 +3,8 @@ import { NotificationService } from './notification.service';
 import { BullModule } from '@nestjs/bullmq';
 import { NotificationController } from './notification.controller';
 import { NotificationsProcessor } from './notification.processor';
-import { HttpModule } from '@nestjs/axios';
+import { JwtModule } from '@nestjs/jwt';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { HttpModule } from '@nestjs/axios';
         port: 6379
       }
     }),
-    HttpModule
+    JwtModule.register({ secret: 'hard!to-guess_secret' }),
+    CacheModule.register()
   ],
   controllers: [NotificationController],
   providers: [NotificationsProcessor, NotificationService],

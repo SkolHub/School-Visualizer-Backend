@@ -1,6 +1,41 @@
-import { ArrayMinSize, ValidateNested } from 'class-validator';
+import {
+  ArrayMinSize,
+  IsDateString,
+  IsInt,
+  IsString,
+  Length,
+  ValidateNested
+} from 'class-validator';
 import { Type } from 'class-transformer';
-import { CreateSubjectDto } from '../../subject/dto/create-subject.dto';
+
+class SubjectTimeSlotDto {
+  @IsDateString()
+  startTime: string;
+
+  @IsDateString()
+  endTime: string;
+
+  @IsInt()
+  weekday: number;
+}
+
+class CreateSubjectDto {
+  @IsString()
+  @Length(1, 50)
+  displayName: string;
+
+  @IsString()
+  @Length(1, 50)
+  color: string;
+
+  @IsString()
+  @Length(1, 50)
+  symbolName: string;
+
+  @ValidateNested({ each: true })
+  @Type(() => SubjectTimeSlotDto)
+  timeSlots: SubjectTimeSlotDto[];
+}
 
 export class CreateScheduleDto {
   @ValidateNested({ each: true })

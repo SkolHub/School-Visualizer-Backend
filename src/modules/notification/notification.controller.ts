@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Delete, Get } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 
 @Controller()
@@ -7,7 +7,11 @@ export class NotificationController {
 
   @Get()
   test() {
-    console.log('mircea');
-    return this.notificationService.sendNotification('', 'test sau text', {});
+    return this.notificationService.getNotifications();
+  }
+
+  @Delete()
+  delete() {
+    return this.notificationService.deleteNotifications();
   }
 }
