@@ -18,8 +18,6 @@ export class NotificationService {
       message,
       payload
     });
-
-    console.log('notification added');
   }
 
   async scheduleNotification(

@@ -16,8 +16,7 @@ import { NotificationModule } from './modules/notification/notification.module';
     LocalStorageModule,
     ScheduleModule,
     SubjectModule,
-    TimeSlotModule,
-    NotificationModule
+    TimeSlotModule
   ],
   controllers: [],
   providers: [

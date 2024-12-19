@@ -3,9 +3,14 @@ import { DBService } from '../../common/db.service';
 import { timeSlot } from '../../database/schema/time-slot';
 import { eq } from 'drizzle-orm';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class ScheduleService extends DBService {
+  constructor(private readonly notificationService: NotificationService) {
+    super();
+  }
+
   findOne() {
     return this.db
       .select({

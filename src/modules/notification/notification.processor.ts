@@ -1,6 +1,7 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
-import { Notification, Provider } from 'apn';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 interface NotificationInterface {
   deviceToken: string;
@@ -9,35 +10,17 @@ interface NotificationInterface {
 
 @Processor('notifications')
 export class NotificationsProcessor extends WorkerHost {
-  private apnProvider: Provider;
-
-  constructor() {
+  constructor(private readonly httpService: HttpService) {
     super();
-    this.apnProvider = new Provider({
-      token: {
-        key: 'path/to/AuthKey.p8',
-        keyId: 'your-key-id',
-        teamId: 'your-team-id'
-      },
-      production: false
-    });
   }
 
   async process(job: Job<NotificationInterface>): Promise<void> {
-    console.log(job.data);
-
     const { deviceToken, name } = job.data;
 
-    const notification = new Notification();
-    notification.alert = name;
-    notification.payload = 'text';
-    notification.topic = 'com.example.app';
+    console.log(job.data);
 
-    try {
-      const result = await this.apnProvider.send(notification, deviceToken);
-      console.log('Notification sent:', result);
-    } catch (error) {
-      console.error('Error sending notification:', error);
-    }
+    console.log(
+      await firstValueFrom(this.httpService.post(`https://api.push.apple.com/3/device/${deviceToken}`, {}, {}))
+    );
   }
 }

@@ -1,6 +1,7 @@
 import { Inject } from '@nestjs/common';
 import { ClsService, ClsStore } from 'nestjs-cls';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { NotificationService } from '../modules/notification/notification.service';
 
 export interface CustomClsStore extends ClsStore {
   token: string;

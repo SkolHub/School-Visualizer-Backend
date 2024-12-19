@@ -3,11 +3,11 @@ import { NotificationService } from './notification.service';
 
 @Controller()
 export class NotificationController {
-  constructor(private readonly scheduleService: NotificationService) {}
+  constructor(private readonly notificationService: NotificationService) {}
 
   @Get()
   test() {
     console.log('mircea');
-    return this.scheduleService.sendNotification('', 'test sau text', {});
+    return this.notificationService.sendNotification('', 'test sau text', {});
   }
 }
