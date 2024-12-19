@@ -39,3 +39,6 @@ lerna-debug.log*
 
 # Project
 uploads
+
+# Redis
+dump.rdb
