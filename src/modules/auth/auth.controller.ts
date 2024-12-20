@@ -7,8 +7,8 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('device-token')
-  deviceToken(@Body() uploadTokenDto: UploadTokenDto) {
-    return this.authService.deviceToken(uploadTokenDto);
+  deviceToken() {
+    return this.authService.deviceToken();
   }
 
   @Post('start-token')

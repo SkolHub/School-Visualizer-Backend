@@ -6,9 +6,9 @@ import { eq } from 'drizzle-orm';
 
 @Injectable()
 export class AuthService extends DBService {
-  async deviceToken(uploadTokenDto: UploadTokenDto) {
+  async deviceToken() {
     await this.db.insert(users).values({
-      deviceToken: uploadTokenDto.token,
+      deviceToken: this.token,
       startToken: '',
       updateToken: ''
     });

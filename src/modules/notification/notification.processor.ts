@@ -1,6 +1,5 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
-import { JwtService } from '@nestjs/jwt';
 import { Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -9,6 +8,7 @@ import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import envConfig from '../../../env.config';
 import { TimeSlot } from '../../types/types';
+import { sign } from 'jsonwebtoken';
 
 interface NotificationInterface {
   deviceToken: string;
@@ -18,7 +18,6 @@ interface NotificationInterface {
 @Processor('notifications')
 export class NotificationsProcessor extends WorkerHost {
   constructor(
-    private readonly jwtService: JwtService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @Inject('DB') protected readonly db: NodePgDatabase
   ) {
@@ -29,19 +28,24 @@ export class NotificationsProcessor extends WorkerHost {
     let token: string = await this.cacheManager.get('token');
 
     if (!token) {
-      token = this.jwtService.sign(
-        {
-          iss: envConfig.TEAM_ID,
-          iat: Math.floor(Date.now() / 1000)
-        },
-        {
-          header: {
-            alg: 'ES256',
-            kid: envConfig.KEY_ID
+      try {
+        token = sign(
+          {
+            iss: envConfig.TEAM_ID,
+            iat: Math.floor(Date.now() / 1000)
           },
-          algorithm: 'ES256'
-        }
-      );
+          envConfig.AUTH_KEY,
+          {
+            header: {
+              alg: 'ES256',
+              kid: envConfig.KEY_ID
+            },
+            algorithm: 'ES256'
+          }
+        );
+      } catch (e) {
+        console.log(e);
+      }
 
       await this.cacheManager.set('token', token);
     }
@@ -158,6 +162,8 @@ export class NotificationsProcessor extends WorkerHost {
   }
 
   async process(job: Job<NotificationInterface>): Promise<void> {
+    console.log('reached 1');
+
     const { deviceToken, payload } = job.data;
 
     const { updateToken, startToken } = (
@@ -169,21 +175,24 @@ export class NotificationsProcessor extends WorkerHost {
 
     const authToken = await this.getToken();
 
+    console.log(authToken);
+
     switch (job.name) {
       case 'first':
         await this.sendBeginActivity(startToken, payload, authToken);
-        break;
+        return;
+
       case 'end':
         await this.sendEndActivity(updateToken, payload, authToken);
-        break;
+        return;
 
       case 'next':
         await this.scheduleNextHour(updateToken, payload, authToken);
-        break;
+        return;
 
       case 'start':
         await this.scheduleBeginHour(updateToken, payload, authToken);
-        break;
+        return;
     }
   }
 }

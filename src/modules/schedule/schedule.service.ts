@@ -37,6 +37,8 @@ export class ScheduleService extends DBService {
       )
       .flat();
 
+    console.log(raw_notifications);
+
     for (let i = 1; i <= 5; i++) {
       const notifications = raw_notifications
         .filter((el) => el.weekday === i)

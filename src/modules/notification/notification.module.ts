@@ -5,6 +5,7 @@ import { NotificationController } from './notification.controller';
 import { NotificationsProcessor } from './notification.processor';
 import { JwtModule } from '@nestjs/jwt';
 import { CacheModule } from '@nestjs/cache-manager';
+import envConfig from '../../../env.config';
 
 @Module({
   imports: [
@@ -15,8 +16,10 @@ import { CacheModule } from '@nestjs/cache-manager';
         port: 6379
       }
     }),
-    JwtModule.register({ secret: 'hard!to-guess_secret' }),
-    CacheModule.register()
+    CacheModule.register({
+      isGlobal: true,
+      ttl: 1000 * 60 * 30
+    })
   ],
   controllers: [NotificationController],
   providers: [NotificationsProcessor, NotificationService],

@@ -14,4 +14,9 @@ export class NotificationController {
   delete() {
     return this.notificationService.deleteNotifications();
   }
+
+  @Get('test')
+  test2() {
+    return this.notificationService.test2();
+  }
 }
