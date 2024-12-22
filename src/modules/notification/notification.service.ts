@@ -1,17 +1,12 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { TimeSlot } from '../../types/types';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
-import { sign } from 'jsonwebtoken';
-import envConfig from '../../../env.config';
 
 @Injectable()
 export class NotificationService {
   constructor(
-    @InjectQueue('notifications') private readonly notificationsQueue: Queue,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache
+    @InjectQueue('notifications') private readonly notificationsQueue: Queue
   ) {}
 
   async scheduleNotification(
@@ -80,24 +75,5 @@ export class NotificationService {
     for (const job of jobs) {
       await job.remove();
     }
-  }
-
-  async test2() {
-    const token = sign(
-      {
-        iss: envConfig.TEAM_ID,
-        iat: Math.floor(Date.now() / 1000)
-      },
-      envConfig.AUTH_KEY,
-      {
-        header: {
-          alg: 'ES256',
-          kid: envConfig.KEY_ID
-        },
-        algorithm: 'ES256'
-      }
-    );
-
-    return token;
   }
 }

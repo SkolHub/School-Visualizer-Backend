@@ -3,7 +3,6 @@ import { NotificationService } from './notification.service';
 import { BullModule } from '@nestjs/bullmq';
 import { NotificationController } from './notification.controller';
 import { NotificationsProcessor } from './notification.processor';
-import { JwtModule } from '@nestjs/jwt';
 import { CacheModule } from '@nestjs/cache-manager';
 import envConfig from '../../../env.config';
 
@@ -12,8 +11,11 @@ import envConfig from '../../../env.config';
     BullModule.registerQueue({
       name: 'notifications',
       connection: {
-        host: 'localhost',
-        port: 6379
+        host: envConfig.REDIS_HOST,
+        port: Number(envConfig.REDIS_PORT)
+      },
+      defaultJobOptions: {
+        removeOnComplete: true
       }
     }),
     CacheModule.register({

@@ -9,6 +9,7 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import envConfig from '../../../env.config';
 import { TimeSlot } from '../../types/types';
 import { sign } from 'jsonwebtoken';
+import { fetch } from 'fetch-http2';
 
 interface NotificationInterface {
   deviceToken: string;
@@ -58,28 +59,46 @@ export class NotificationsProcessor extends WorkerHost {
     payload: TimeSlot,
     authToken: string
   ) {
-    const now = new Date().getTime();
+    console.log('Begin activity', startToken, payload, authToken);
 
-    await fetch(`https://api.sandbox.push.apple.com/3/device/${startToken}`, {
-      method: 'POST',
-      headers: {
-        'apns-topic':
-          'ro.attractivestar.SchoolHubMobile.push-type.liveactivity',
-        'apns-push-type': 'liveactivity',
-        'apns-priority': '10',
-        authorization: `bearer ${authToken}`
-      },
-      body: JSON.stringify({
-        aps: {
-          timestamp: now,
-          'stale-date': now / 1000 + 60 * 60,
-          event: 'start',
-          'content-state': payload,
-          'attributes-type': 'TimetableAttributes',
-          attributes: payload
+    const timestamp = Math.floor(Date.now() / 1000); // Current time in seconds
+    const staleDate = Math.floor(Date.now() / 1000) + 3 * 60 * 60; // Current time + 3 hours in seconds
+
+    const payload2 = {
+      aps: {
+        timestamp: timestamp,
+        'stale-date': staleDate,
+        event: 'start',
+        'content-state': payload,
+        'attributes-type': 'TimetableAttributes',
+        attributes: payload,
+        alert: {
+          title: 'test sau text',
+          body: 'test sau text'
         }
-      })
-    });
+      }
+    };
+
+    try {
+      const response = await fetch(
+        `https://api.sandbox.push.apple.com/3/device/${startToken}`,
+        {
+          method: 'POST',
+          headers: {
+            'apns-topic': 'ro.attractivestar.SchoolHubMobile.push-type.liveactivity',
+            'apns-push-type': 'liveactivity',
+            'apns-priority': '10',
+            authorization: `bearer ${authToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload2)
+        }
+      );
+
+      console.log(response);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   async sendEndActivity(
@@ -89,24 +108,35 @@ export class NotificationsProcessor extends WorkerHost {
   ) {
     const now = new Date().getTime();
 
-    await fetch(`https://api.sandbox.push.apple.com/3/device/${updateToken}`, {
-      method: 'POST',
-      headers: {
-        'apns-topic':
-          'ro.attractivestar.SchoolHubMobile.push-type.liveactivity',
-        'apns-push-type': 'liveactivity',
-        'apns-priority': '10',
-        authorization: `bearer ${authToken}`
-      },
-      body: JSON.stringify({
-        aps: {
-          timestamp: now,
-          'dismissal-date': now,
-          event: 'end',
-          'content-state': payload
+    console.log('End activity', updateToken, payload, authToken);
+
+    try {
+      const response = await fetch(
+        `https://api.sandbox.push.apple.com/3/device/${updateToken}`,
+        {
+          method: 'POST',
+          headers: {
+            'apns-topic':
+              'ro.attractivestar.SchoolHubMobile.push-type.liveactivity',
+            'apns-push-type': 'liveactivity',
+            'apns-priority': '10',
+            authorization: `bearer ${authToken}`
+          },
+          body: JSON.stringify({
+            aps: {
+              timestamp: Math.floor(now / 1000),
+              'dismissal-date': Math.floor(now / 1000),
+              event: 'end',
+              'content-state': payload
+            }
+          })
         }
-      })
-    });
+      );
+
+      console.log(response);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   async scheduleNextHour(
@@ -116,23 +146,34 @@ export class NotificationsProcessor extends WorkerHost {
   ) {
     const now = new Date().getTime();
 
-    await fetch(`https://api.sandbox.push.apple.com/3/device/${updateToken}`, {
-      method: 'POST',
-      headers: {
-        'apns-topic':
-          'ro.attractivestar.SchoolHubMobile.push-type.liveactivity',
-        'apns-push-type': 'liveactivity',
-        'apns-priority': '10',
-        authorization: `bearer ${authToken}`
-      },
-      body: JSON.stringify({
-        aps: {
-          timestamp: now,
-          event: 'update',
-          'content-state': payload
+    console.log('Next hour', updateToken, payload, authToken);
+
+    try {
+      const response = await fetch(
+        `https://api.sandbox.push.apple.com/3/device/${updateToken}`,
+        {
+          method: 'POST',
+          headers: {
+            'apns-topic':
+              'ro.attractivestar.SchoolHubMobile.push-type.liveactivity',
+            'apns-push-type': 'liveactivity',
+            'apns-priority': '10',
+            authorization: `bearer ${authToken}`
+          },
+          body: JSON.stringify({
+            aps: {
+              timestamp: Math.floor(now / 1000),
+              event: 'update',
+              'content-state': payload
+            }
+          })
         }
-      })
-    });
+      );
+
+      console.log(response);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   async scheduleBeginHour(
@@ -142,28 +183,37 @@ export class NotificationsProcessor extends WorkerHost {
   ) {
     const now = new Date().getTime();
 
-    await fetch(`https://api.sandbox.push.apple.com/3/device/${updateToken}`, {
-      method: 'POST',
-      headers: {
-        'apns-topic':
-          'ro.attractivestar.SchoolHubMobile.push-type.liveactivity',
-        'apns-push-type': 'liveactivity',
-        'apns-priority': '10',
-        authorization: `bearer ${authToken}`
-      },
-      body: JSON.stringify({
-        aps: {
-          timestamp: now,
-          event: 'update',
-          'content-state': payload
+    console.log('Begin hour', updateToken, payload, authToken);
+
+    try {
+      const response = await fetch(
+        `https://api.sandbox.push.apple.com/3/device/${updateToken}`,
+        {
+          method: 'POST',
+          headers: {
+            'apns-topic':
+              'ro.attractivestar.SchoolHubMobile.push-type.liveactivity',
+            'apns-push-type': 'liveactivity',
+            'apns-priority': '10',
+            authorization: `bearer ${authToken}`
+          },
+          body: JSON.stringify({
+            aps: {
+              timestamp: Math.floor(now / 1000),
+              event: 'update',
+              'content-state': payload
+            }
+          })
         }
-      })
-    });
+      );
+
+      console.log(response);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   async process(job: Job<NotificationInterface>): Promise<void> {
-    console.log('reached 1');
-
     const { deviceToken, payload } = job.data;
 
     const { updateToken, startToken } = (
@@ -175,7 +225,7 @@ export class NotificationsProcessor extends WorkerHost {
 
     const authToken = await this.getToken();
 
-    console.log(authToken);
+    console.log('Processing notification');
 
     switch (job.name) {
       case 'first':

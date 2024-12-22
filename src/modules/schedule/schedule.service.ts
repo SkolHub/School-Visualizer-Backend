@@ -37,9 +37,7 @@ export class ScheduleService extends DBService {
       )
       .flat();
 
-    console.log(raw_notifications);
-
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 7; i++) {
       const notifications = raw_notifications
         .filter((el) => el.weekday === i)
         .sort((a, b) => {
@@ -84,11 +82,14 @@ export class ScheduleService extends DBService {
               color: notifications[j].color,
               symbolName: notifications[j].symbolName,
               endTime: endTime,
-              nextTimeSlot: notifications.length > 1 ? {
-                displayName: notifications[j + 1].displayName,
-                color: notifications[j + 1].color,
-                symbolName: notifications[j + 1].symbolName
-              } : null,
+              nextTimeSlot:
+                notifications.length > 1
+                  ? {
+                      displayName: notifications[j + 1].displayName,
+                      color: notifications[j + 1].color,
+                      symbolName: notifications[j + 1].symbolName
+                    }
+                  : null,
               startTime: null
             },
             delay
@@ -101,11 +102,14 @@ export class ScheduleService extends DBService {
               color: notifications[j].color,
               symbolName: notifications[j].symbolName,
               endTime: endTime,
-              nextTimeSlot: j !== notifications.length - 1 ? {
-                displayName: notifications[j + 1].displayName,
-                color: notifications[j + 1].color,
-                symbolName: notifications[j + 1].symbolName
-              } : null,
+              nextTimeSlot:
+                j !== notifications.length - 1
+                  ? {
+                      displayName: notifications[j + 1].displayName,
+                      color: notifications[j + 1].color,
+                      symbolName: notifications[j + 1].symbolName
+                    }
+                  : null,
               startTime: null
             },
             delay
@@ -127,7 +131,14 @@ export class ScheduleService extends DBService {
               displayName: notifications[j + 1].displayName,
               color: notifications[j + 1].color,
               symbolName: notifications[j + 1].symbolName,
-              startTime: startTime,
+              startTime: new Date(
+                nextDay(i).setHours(
+                  notifications[j + 1].startTime.getHours(),
+                  notifications[j + 1].startTime.getMinutes(),
+                  notifications[j + 1].startTime.getSeconds(),
+                  0
+                )
+              ),
               endTime: null,
               nextTimeSlot: null
             },
