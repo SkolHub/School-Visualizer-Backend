@@ -11,8 +11,7 @@ import envConfig from '../../../env.config';
     BullModule.registerQueue({
       name: 'notifications',
       connection: {
-        host: envConfig.REDIS_HOST,
-        port: Number(envConfig.REDIS_PORT)
+        url: envConfig.REDIS_URL
       },
       defaultJobOptions: {
         removeOnComplete: true

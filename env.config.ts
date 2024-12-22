@@ -9,6 +9,5 @@ export default process.env as {
   KEY_ID: string;
   AUTH_KEY: string;
 
-  REDIS_PORT: string;
-  REDIS_HOST: string
+  REDIS_URL: string;
 };
