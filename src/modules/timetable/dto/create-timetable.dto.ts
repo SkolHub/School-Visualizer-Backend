@@ -37,7 +37,7 @@ class CreateSubjectDto {
   timeSlots: SubjectTimeSlotDto[];
 }
 
-export class CreateScheduleDto {
+export class CreateTimetableDto {
   @ValidateNested({ each: true })
   @Type(() => CreateSubjectDto)
   @ArrayMinSize(1)

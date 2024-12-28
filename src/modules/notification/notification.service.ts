@@ -12,7 +12,7 @@ export class NotificationService {
   async scheduleNotification(
     deviceToken: string,
     payload: any,
-    type: 'first' | 'start' | 'end' | 'next',
+    type: 'start' | 'end' | 'next',
     delay: number
   ): Promise<void> {
     await this.notificationsQueue.add(
@@ -25,14 +25,6 @@ export class NotificationService {
         delay
       }
     );
-  }
-
-  async scheduleBeginActivity(
-    deviceToken: string,
-    payload: TimeSlot,
-    delay: number
-  ) {
-    await this.scheduleNotification(deviceToken, payload, 'first', delay);
   }
 
   async scheduleEndActivity(deviceToken: string, delay: number) {
@@ -62,18 +54,6 @@ export class NotificationService {
       if (job.data.deviceToken === deviceToken) {
         await job.remove();
       }
-    }
-  }
-
-  async getNotifications(): Promise<any> {
-    return await this.notificationsQueue.getJobs();
-  }
-
-  async deleteNotifications(): Promise<void> {
-    const jobs = await this.notificationsQueue.getJobs();
-
-    for (const job of jobs) {
-      await job.remove();
     }
   }
 }

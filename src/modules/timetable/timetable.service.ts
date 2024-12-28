@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DBService } from '../../common/db.service';
-import { CreateScheduleDto } from './dto/create-schedule.dto';
+import { CreateTimetableDto } from './dto/create-timetable.dto';
 import { NotificationService } from '../notification/notification.service';
 
 function nextDay(x: number) {
@@ -12,30 +12,28 @@ function nextDay(x: number) {
 }
 
 @Injectable()
-export class ScheduleService extends DBService {
+export class TimetableService extends DBService {
   constructor(private readonly notificationService: NotificationService) {
     super();
   }
 
-  async create(createScheduleDto: CreateScheduleDto) {
+  async create(createScheduleDto: CreateTimetableDto) {
     await this.notificationService.clearNotifications(this.token);
 
-    const raw_notifications = createScheduleDto.subjects
-      .map((subject) =>
-        subject.timeSlots.map((timeSlot) => {
-          return {
-            deviceToken: this.token,
-            displayName: subject.displayName,
-            color: subject.color,
-            symbolName: subject.symbolName,
-            repeatAfter: 7,
-            startTime: new Date(timeSlot.startTime),
-            endTime: new Date(timeSlot.endTime),
-            weekday: timeSlot.weekday
-          };
-        })
-      )
-      .flat();
+    const raw_notifications = createScheduleDto.subjects.flatMap((subject) =>
+      subject.timeSlots.map((timeSlot) => {
+        return {
+          deviceToken: this.token,
+          displayName: subject.displayName,
+          color: subject.color,
+          symbolName: subject.symbolName,
+          repeatAfter: 7,
+          startTime: new Date(timeSlot.startTime),
+          endTime: new Date(timeSlot.endTime),
+          weekday: timeSlot.weekday
+        };
+      })
+    );
 
     for (let i = 1; i <= 7; i++) {
       const notifications = raw_notifications
@@ -68,57 +66,27 @@ export class ScheduleService extends DBService {
           )
         );
 
-        // if (startTime < now) {
-        //   continue;
-        // }
-
         const delay = startTime.getTime() - now.getTime();
 
-        if (j === 0) {
-          await this.notificationService.scheduleBeginActivity(
-            this.token,
-            {
-              displayName: notifications[j].displayName,
-              color: notifications[j].color,
-              symbolName: notifications[j].symbolName,
-              endTime: endTime,
-              nextTimeSlot:
-                notifications.length > 1
-                  ? {
-                      displayName: notifications[j + 1].displayName,
-                      color: notifications[j + 1].color,
-                      symbolName: notifications[j + 1].symbolName
-                    }
-                  : null,
-              startTime: null
-            },
-            delay
-          );
-        } else {
-          await this.notificationService.scheduleBeginHour(
-            this.token,
-            {
-              displayName: notifications[j].displayName,
-              color: notifications[j].color,
-              symbolName: notifications[j].symbolName,
-              endTime: endTime,
-              nextTimeSlot:
-                j !== notifications.length - 1
-                  ? {
-                      displayName: notifications[j + 1].displayName,
-                      color: notifications[j + 1].color,
-                      symbolName: notifications[j + 1].symbolName
-                    }
-                  : null,
-              startTime: null
-            },
-            delay
-          );
-        }
-
-        // if (endTime < now) {
-        //   continue;
-        // }
+        await this.notificationService.scheduleBeginHour(
+          this.token,
+          {
+            displayName: notifications[j].displayName,
+            color: notifications[j].color,
+            symbolName: notifications[j].symbolName,
+            endTime: endTime,
+            nextTimeSlot:
+              j !== notifications.length - 1
+                ? {
+                  displayName: notifications[j + 1].displayName,
+                  color: notifications[j + 1].color,
+                  symbolName: notifications[j + 1].symbolName
+                }
+                : null,
+            startTime: null
+          },
+          delay
+        );
 
         const nextNotification = notifications[j + 1];
 
@@ -152,5 +120,9 @@ export class ScheduleService extends DBService {
         }
       }
     }
+  }
+
+  async delete() {
+    await this.notificationService.clearNotifications(this.token);
   }
 }

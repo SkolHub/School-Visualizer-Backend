@@ -29,24 +29,20 @@ export class NotificationsProcessor extends WorkerHost {
     let token: string = await this.cacheManager.get('token');
 
     if (!token) {
-      try {
-        token = sign(
-          {
-            iss: envConfig.TEAM_ID,
-            iat: Math.floor(Date.now() / 1000)
+      token = sign(
+        {
+          iss: envConfig.TEAM_ID,
+          iat: Math.floor(Date.now() / 1000)
+        },
+        envConfig.AUTH_KEY,
+        {
+          header: {
+            alg: 'ES256',
+            kid: envConfig.KEY_ID
           },
-          envConfig.AUTH_KEY,
-          {
-            header: {
-              alg: 'ES256',
-              kid: envConfig.KEY_ID
-            },
-            algorithm: 'ES256'
-          }
-        );
-      } catch (e) {
-        console.log(e);
-      }
+          algorithm: 'ES256'
+        }
+      );
 
       await this.cacheManager.set('token', token);
     }
@@ -54,194 +50,128 @@ export class NotificationsProcessor extends WorkerHost {
     return token;
   }
 
-  async sendBeginActivity(
-    startToken: string,
-    payload: TimeSlot,
-    authToken: string
-  ) {
-    console.log('Begin activity', startToken, payload, authToken);
+  async sendActivity(activityToken: string, payload: any) {
+    await fetch(
+      `https://api.sandbox.push.apple.com/3/device/${activityToken}`,
+      {
+        method: 'POST',
+        headers: {
+          'apns-topic':
+            'ro.attractivestar.SchoolHubMobile.push-type.liveactivity',
+          'apns-push-type': 'liveactivity',
+          'apns-priority': '10',
+          authorization: `bearer ${await this.getToken()}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          aps: payload
+        })
+      }
+    );
+  }
 
-    const timestamp = Math.floor(Date.now() / 1000); // Current time in seconds
-    const staleDate = Math.floor(Date.now() / 1000) + 3 * 60 * 60; // Current time + 3 hours in seconds
+  async sendBeginActivity(startToken: string, payload: TimeSlot) {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const staleDate = Math.floor(Date.now() / 1000) + 3 * 60 * 60;
 
     const payload2 = {
-      aps: {
-        timestamp: timestamp,
-        'stale-date': staleDate,
-        event: 'start',
-        'content-state': payload,
-        'attributes-type': 'TimetableAttributes',
-        attributes: payload,
-        alert: {
-          title: 'test sau text',
-          body: 'test sau text'
-        }
+      timestamp: timestamp,
+      'stale-date': staleDate,
+      event: 'start',
+      'content-state': payload,
+      'attributes-type': 'TimetableAttributes',
+      attributes: payload,
+      alert: {
+        title: 'test sau text',
+        body: 'test sau text'
       }
     };
 
-    try {
-      const response = await fetch(
-        `https://api.sandbox.push.apple.com/3/device/${startToken}`,
-        {
-          method: 'POST',
-          headers: {
-            'apns-topic': 'ro.attractivestar.SchoolHubMobile.push-type.liveactivity',
-            'apns-push-type': 'liveactivity',
-            'apns-priority': '10',
-            authorization: `bearer ${authToken}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload2)
-        }
-      );
-
-      console.log(response);
-    } catch (e) {
-      console.log(e);
-    }
+    await this.sendActivity(startToken, payload2);
   }
 
-  async sendEndActivity(
-    updateToken: string,
-    payload: TimeSlot,
-    authToken: string
-  ) {
+  async scheduleNextHour(updateToken: string, payload: TimeSlot) {
     const now = new Date().getTime();
 
-    console.log('End activity', updateToken, payload, authToken);
-
-    try {
-      const response = await fetch(
-        `https://api.sandbox.push.apple.com/3/device/${updateToken}`,
-        {
-          method: 'POST',
-          headers: {
-            'apns-topic':
-              'ro.attractivestar.SchoolHubMobile.push-type.liveactivity',
-            'apns-push-type': 'liveactivity',
-            'apns-priority': '10',
-            authorization: `bearer ${authToken}`
-          },
-          body: JSON.stringify({
-            aps: {
-              timestamp: Math.floor(now / 1000),
-              'dismissal-date': Math.floor(now / 1000),
-              event: 'end',
-              'content-state': payload
-            }
-          })
-        }
-      );
-
-      console.log(response);
-    } catch (e) {
-      console.log(e);
-    }
+    await this.sendActivity(updateToken, {
+      timestamp: Math.floor(now / 1000),
+      event: 'update',
+      'content-state': payload
+    });
   }
 
-  async scheduleNextHour(
-    updateToken: string,
-    payload: TimeSlot,
-    authToken: string
-  ) {
+  async scheduleBeginHour(updateToken: string, payload: TimeSlot) {
     const now = new Date().getTime();
 
-    console.log('Next hour', updateToken, payload, authToken);
-
-    try {
-      const response = await fetch(
-        `https://api.sandbox.push.apple.com/3/device/${updateToken}`,
-        {
-          method: 'POST',
-          headers: {
-            'apns-topic':
-              'ro.attractivestar.SchoolHubMobile.push-type.liveactivity',
-            'apns-push-type': 'liveactivity',
-            'apns-priority': '10',
-            authorization: `bearer ${authToken}`
-          },
-          body: JSON.stringify({
-            aps: {
-              timestamp: Math.floor(now / 1000),
-              event: 'update',
-              'content-state': payload
-            }
-          })
-        }
-      );
-
-      console.log(response);
-    } catch (e) {
-      console.log(e);
-    }
+    await this.sendActivity(updateToken, {
+      timestamp: Math.floor(now / 1000),
+      event: 'update',
+      'content-state': payload
+    });
   }
 
-  async scheduleBeginHour(
-    updateToken: string,
-    payload: TimeSlot,
-    authToken: string
-  ) {
+  async sendEndActivity(updateToken: string, payload: TimeSlot) {
     const now = new Date().getTime();
 
-    console.log('Begin hour', updateToken, payload, authToken);
-
-    try {
-      const response = await fetch(
-        `https://api.sandbox.push.apple.com/3/device/${updateToken}`,
-        {
-          method: 'POST',
-          headers: {
-            'apns-topic':
-              'ro.attractivestar.SchoolHubMobile.push-type.liveactivity',
-            'apns-push-type': 'liveactivity',
-            'apns-priority': '10',
-            authorization: `bearer ${authToken}`
-          },
-          body: JSON.stringify({
-            aps: {
-              timestamp: Math.floor(now / 1000),
-              event: 'update',
-              'content-state': payload
-            }
-          })
-        }
-      );
-
-      console.log(response);
-    } catch (e) {
-      console.log(e);
-    }
+    await this.sendActivity(updateToken, {
+      timestamp: Math.floor(now / 1000),
+      'dismissal-date': Math.floor(now / 1000),
+      event: 'end',
+      'content-state': payload
+    });
   }
 
-  async process(job: Job<NotificationInterface>): Promise<void> {
+  async process(
+    job: Job<NotificationInterface, any, 'start' | 'next' | 'end'>
+  ): Promise<void> {
     const { deviceToken, payload } = job.data;
 
-    const { updateToken, startToken } = (
+    const { updateToken, startToken, isLive, pauseUntil } = (
       await this.db
         .select()
         .from(users)
         .where(eq(users.deviceToken, deviceToken))
     )[0];
 
-    const authToken = await this.getToken();
+    if (pauseUntil > new Date()) {
+      return;
+    }
 
-    console.log('Processing notification');
+    if (!isLive) {
+      if (job.name === 'end') {
+        return;
+      }
+
+      await this.sendBeginActivity(startToken, payload);
+      await this.db
+        .update(users)
+        .set({
+          isLive: true
+        })
+        .where(eq(users.deviceToken, deviceToken));
+
+      return;
+    }
 
     switch (job.name) {
-      case 'first':
-        await this.sendBeginActivity(startToken, payload, authToken);
-        return;
-
       case 'end':
-        await this.sendEndActivity(updateToken, payload, authToken);
+        await this.sendEndActivity(updateToken, payload);
+
+        await this.db
+          .update(users)
+          .set({
+            isLive: false
+          })
+          .where(eq(users.deviceToken, deviceToken));
+
         return;
 
       case 'next':
-        await this.scheduleNextHour(updateToken, payload, authToken);
+        await this.scheduleNextHour(updateToken, payload);
         return;
 
       case 'start':
-        await this.scheduleBeginHour(updateToken, payload, authToken);
+        await this.scheduleBeginHour(updateToken, payload);
         return;
     }
   }

@@ -1,20 +1,25 @@
 import { RouterModule, Routes } from '@nestjs/core';
-import { ScheduleModule } from '../modules/schedule/schedule.module';
-import { NotificationModule } from '../modules/notification/notification.module';
+import { TimetableModule } from '../modules/timetable/timetable.module';
 import { AuthModule } from '../modules/auth/auth.module';
+import { KeepAliveModule } from '../modules/keep-alive/keep-alive.module';
+import { SettingsModule } from '../modules/settings/settings.module';
 
 const routes: Routes = [
   {
-    path: 'schedule',
-    module: ScheduleModule
-  },
-  {
-    path: 'test',
-    module: NotificationModule
+    path: 'timetable',
+    module: TimetableModule
   },
   {
     path: 'auth',
     module: AuthModule
+  },
+  {
+    path: 'ping',
+    module: KeepAliveModule
+  },
+  {
+    path: 'settings',
+    module: SettingsModule
   }
 ];
 

@@ -10,4 +10,6 @@ export default process.env as {
   AUTH_KEY: string;
 
   REDIS_URL: string;
+
+  HOST_URL: string;
 };
