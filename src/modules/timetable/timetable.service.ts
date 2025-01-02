@@ -17,10 +17,10 @@ export class TimetableService extends DBService {
     super();
   }
 
-  async create(createScheduleDto: CreateTimetableDto) {
+  async create(createTimetableDto: CreateTimetableDto) {
     await this.notificationService.clearNotifications(this.token);
 
-    const raw_notifications = createScheduleDto.subjects.flatMap((subject) =>
+    const raw_notifications = createTimetableDto.subjects.flatMap((subject) =>
       subject.timeSlots.map((timeSlot) => {
         return {
           deviceToken: this.token,

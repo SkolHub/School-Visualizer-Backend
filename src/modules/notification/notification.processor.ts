@@ -133,7 +133,7 @@ export class NotificationsProcessor extends WorkerHost {
         .where(eq(users.deviceToken, deviceToken))
     )[0];
 
-    if (pauseUntil > new Date()) {
+    if (pauseUntil !== null && pauseUntil > new Date()) {
       return;
     }
 
