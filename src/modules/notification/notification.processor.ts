@@ -52,20 +52,23 @@ export class NotificationsProcessor extends WorkerHost {
 
   async sendActivity(activityToken: string, payload: any) {
     try {
-      await fetch(`https://api.push.apple.com/3/device/${activityToken}`, {
-        method: 'POST',
-        headers: {
-          'apns-topic':
-            'ro.attractivestar.SchoolHubMobile.push-type.liveactivity',
-          'apns-push-type': 'liveactivity',
-          'apns-priority': '10',
-          authorization: `bearer ${await this.getToken()}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          aps: payload
-        })
-      });
+      await fetch(
+        `https://api.sandbox.push.apple.com/3/device/${activityToken}`,
+        {
+          method: 'POST',
+          headers: {
+            'apns-topic':
+              'ro.attractivestar.SchoolHubMobile.push-type.liveactivity',
+            'apns-push-type': 'liveactivity',
+            'apns-priority': '10',
+            authorization: `bearer ${await this.getToken()}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            aps: payload
+          })
+        }
+      );
     } catch (e) {
       console.log(e);
     }
@@ -149,6 +152,7 @@ export class NotificationsProcessor extends WorkerHost {
       }
 
       await this.sendBeginActivity(startToken, payload);
+
       await this.db
         .update(users)
         .set({
