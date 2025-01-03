@@ -51,9 +51,8 @@ export class NotificationsProcessor extends WorkerHost {
   }
 
   async sendActivity(activityToken: string, payload: any) {
-    await fetch(
-      `https://api.sandbox.push.apple.com/3/device/${activityToken}`,
-      {
+    try {
+      await fetch(`https://api.push.apple.com/3/device/${activityToken}`, {
         method: 'POST',
         headers: {
           'apns-topic':
@@ -66,8 +65,10 @@ export class NotificationsProcessor extends WorkerHost {
         body: JSON.stringify({
           aps: payload
         })
-      }
-    );
+      });
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   async sendBeginActivity(startToken: string, payload: TimeSlot) {
@@ -133,7 +134,12 @@ export class NotificationsProcessor extends WorkerHost {
         .where(eq(users.deviceToken, deviceToken))
     )[0];
 
-    if (pauseUntil !== null && pauseUntil > new Date()) {
+    const now = new Date();
+
+    if (
+      (pauseUntil !== null && pauseUntil > now) ||
+      job.timestamp + job.opts.delay < +now - 5000
+    ) {
       return;
     }
 
