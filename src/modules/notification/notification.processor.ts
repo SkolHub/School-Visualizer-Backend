@@ -69,6 +69,24 @@ export class NotificationsProcessor extends WorkerHost {
           })
         }
       );
+
+      await fetch(
+        `https://api.push.apple.com/3/device/${activityToken}`,
+        {
+          method: 'POST',
+          headers: {
+            'apns-topic':
+              'ro.attractivestar.SchoolHubMobile.push-type.liveactivity',
+            'apns-push-type': 'liveactivity',
+            'apns-priority': '10',
+            authorization: `bearer ${await this.getToken()}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            aps: payload
+          })
+        }
+      );
     } catch (e) {
       console.log(e);
     }
