@@ -6,11 +6,6 @@ import { UploadTokenDto } from './dto/upload-token.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('device-token')
-  deviceToken() {
-    return this.authService.deviceToken();
-  }
-
   @Post('start-token')
   startToken(@Body() uploadTokenDto: UploadTokenDto) {
     return this.authService.startToken(uploadTokenDto);
