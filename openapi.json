@@ -1,0 +1,151 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/timetable": {
+      "post": {
+        "operationId": "TimetableController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTimetableDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Timetable"
+        ]
+      },
+      "delete": {
+        "operationId": "TimetableController_delete",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Timetable"
+        ]
+      }
+    },
+    "/auth/start-token": {
+      "post": {
+        "operationId": "AuthController_startToken",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/update-token": {
+      "post": {
+        "operationId": "AuthController_updateToken",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/ping": {
+      "get": {
+        "operationId": "KeepAliveController_ping",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "KeepAlive"
+        ]
+      }
+    },
+    "/settings/pause": {
+      "patch": {
+        "operationId": "SettingsController_pause",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Settings"
+        ]
+      }
+    },
+    "/settings/unpause": {
+      "patch": {
+        "operationId": "SettingsController_unpause",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Settings"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "SchoolHub visualizer API",
+    "description": "The API endpoints and descriptions of the SchoolHub Visualizer API",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "CreateTimetableDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "UploadTokenDto": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  }
+}
